@@ -2,47 +2,37 @@ GOHOSTOS:=$(shell go env GOHOSTOS)
 GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
 
+# review-c 不维护自己的 .proto —— 所有 proto 契约都集中在 huicod/reviewapis 仓库
+# （挂载为 ./third_party/reviewapis submodule）。
+# 本地仅需生成 internal/conf/conf.proto 的 Go 代码。
 ifeq ($(GOHOSTOS), windows)
-	#the `find.exe` is different from `find` in bash/shell.
-	#to see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/find.
-	#changed to use git-bash.exe to run find cli or other cli friendly, caused of every developer has a Git.
-	#Git_Bash= $(subst cmd\,bin\bash.exe,$(dir $(shell where git)))
 	Git_Bash=$(subst \,/,$(subst cmd\,bin\bash.exe,$(dir $(shell where git))))
 	INTERNAL_PROTO_FILES=$(shell $(Git_Bash) -c "find internal -name *.proto")
-	API_PROTO_FILES=$(shell $(Git_Bash) -c "find api -name *.proto")
 else
 	INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
-	API_PROTO_FILES=$(shell find api -name *.proto)
 endif
 
 .PHONY: init
-# init env
+# install proto tooling (reviewapis 侧生成用；本仓只调 protoc-gen-go 生成 conf)
 init:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	go install github.com/go-kratos/kratos/cmd/kratos/v2@latest
 	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest
-	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	go install github.com/google/wire/cmd/wire@latest
 
 .PHONY: config
-# generate internal proto
+# generate internal/conf/conf.proto -> conf.pb.go
 config:
 	protoc --proto_path=./internal \
 	       --proto_path=./third_party \
- 	       --go_out=paths=source_relative:./internal \
+	       --go_out=paths=source_relative:./internal \
 	       $(INTERNAL_PROTO_FILES)
 
 .PHONY: api
-# generate api proto
+# Proto 契约统一在 huicod/reviewapis 管理。本服务内部不生成 HTTP API 代码。
 api:
-	protoc --proto_path=./api \
-	       --proto_path=./third_party \
- 	       --go_out=paths=source_relative:./api \
- 	       --go-http_out=paths=source_relative:./api \
- 	       --go-grpc_out=paths=source_relative:./api \
-	       --openapi_out=fq_schema_naming=true,default_response=false:. \
-	       $(API_PROTO_FILES)
+	@echo 'consumer.proto is maintained in github.com/huicod/reviewapis; run make api there.'
 
 .PHONY: build
 # build
@@ -58,7 +48,6 @@ generate:
 .PHONY: all
 # generate all
 all:
-	make api
 	make config
 	make generate
 

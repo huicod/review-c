@@ -1,9 +1,9 @@
-package service
+﻿package service
 
 import (
 	"context"
 
-	cv1 "review-c/api/consumer/v1"
+	cv1 "github.com/huicod/reviewapis/consumer/v1"
 	"review-c/internal/biz"
 
 	"github.com/go-kratos/kratos/v2/log"

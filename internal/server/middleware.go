@@ -1,11 +1,11 @@
-package server
+﻿package server
 
 import (
 	"context"
 	"strconv"
 	"strings"
 
-	cv1 "review-c/api/consumer/v1"
+	cv1 "github.com/huicod/reviewapis/consumer/v1"
 	"review-c/internal/conf"
 	"review-c/internal/server/ctxkey"
 

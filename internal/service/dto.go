@@ -9,7 +9,7 @@
 //  - 所有 FromRv 函数都 nil-safe：上游返回 nil 时返回 nil，不 panic。
 
 import (
-	cv1 "review-c/api/consumer/v1"
+	cv1 "github.com/huicod/reviewapis/consumer/v1"
 
 	rv1 "github.com/huicod/reviewapis/review/v1"
 )
