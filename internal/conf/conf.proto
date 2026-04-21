@@ -1,0 +1,54 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "review-c/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+// Bootstrap 与 configs/config.yaml 层级一一对应。
+// review-c 是薄 BFF：对外 HTTP、对内 gRPC client 调 review-service；
+// Data 段退化为「下游服务客户端集合」，无本地 DB/Redis。
+message Bootstrap {
+  Server server = 1;
+  Data data = 2;
+  Registry registry = 3;
+  Security security = 4;
+}
+
+message Server {
+  message HTTP {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  message GRPC {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  HTTP http = 1;
+  GRPC grpc = 2;
+}
+
+message Data {
+  message ReviewService {
+    string endpoint = 1;
+    google.protobuf.Duration timeout = 2;
+  }
+  ReviewService review_service = 1;
+}
+
+message Registry {
+  message Consul {
+    string address = 1;
+    string scheme = 2;
+  }
+  Consul consul = 1;
+}
+
+// Security —— C 端特有配置。
+// enforce_user_id_consistency=true 时，HTTP 中间件强制 path/body 的 user_id 与 X-User-Id 一致，
+// 不一致返 403。默认 true；部署在已完全信任的 Gateway 后面可关。
+message Security {
+  bool enforce_user_id_consistency = 1;
+}

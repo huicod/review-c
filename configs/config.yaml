@@ -1,0 +1,26 @@
+# review-c 配置（与 internal/conf/conf.proto 层级一致）
+# 本地开发：先启动 review-service 与 consul，再启动 review-c。
+server:
+  http:
+    addr: 0.0.0.0:8002
+    timeout: 2s
+  grpc:
+    # gRPC 端口保留给后续 admin/reflection；本版不注册业务服务
+    addr: 0.0.0.0:9002
+    timeout: 1s
+
+data:
+  review_service:
+    # 生产环境走服务发现；本地无 Consul 时可改为直连：127.0.0.1:9000
+    endpoint: discovery:///review-service
+    timeout: 800ms
+
+registry:
+  consul:
+    address: 127.0.0.1:8500
+    scheme: http
+
+security:
+  # C 端越权防护：path/body 的 user_id 必须与 X-User-Id header 一致；默认开启。
+  # Gateway 已完全信任的环境可关（例如灰度/压测）。
+  enforce_user_id_consistency: true

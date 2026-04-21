@@ -1,0 +1,354 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Consumer API
+    description: |-
+        Consumer —— 评价中台 C 端（消费者）对外 HTTP 契约。
+         - 仅暴露 C 端发评 / 看评相关的 4 个 RPC：CreateReview / GetReview / ListReviewByUserID / ListReviews。
+         - 内部通过 gRPC 调 review-service；本层做 PB↔PB 转换与 caller_role=CALLER_ROLE_C 注入。
+         - 字段名与 review-service/api/review/v1/review.proto 1:1 对齐以减少转换代码。
+         - 越权防护：user_id 一致性校验在 HTTP 中间件做（path.user_id == X-User-Id），这里不写。
+    version: 0.0.1
+paths:
+    /v1/reviews:
+        get:
+            tags:
+                - Consumer
+            description: '[REQ-003] C 端按条件列表（仅 APPROVED；筛选子集见下方 ListReviewsRequest）'
+            operationId: Consumer_ListReviews
+            parameters:
+                - name: storeId
+                  in: query
+                  schema:
+                    type: string
+                - name: spuId
+                  in: query
+                  schema:
+                    type: string
+                - name: skuId
+                  in: query
+                  schema:
+                    type: string
+                - name: score
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: hasMedia
+                  in: query
+                  schema:
+                    type: boolean
+                - name: sort
+                  in: query
+                  schema:
+                    type: integer
+                    format: enum
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListReviewsReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - Consumer
+            description: '[REQ-001] C 端创建评价（按 order_id 幂等，下游保证）'
+            operationId: Consumer_CreateReview
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateReviewRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateReviewReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/reviews/{reviewId}:
+        get:
+            tags:
+                - Consumer
+            description: '[REQ-002] C 端查看评价详情（非 APPROVED 会被下游折叠为 NotFound；匿名评价 user_id=0）'
+            operationId: Consumer_GetReview
+            parameters:
+                - name: reviewId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetReviewReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/{userId}/reviews:
+        get:
+            tags:
+                - Consumer
+            description: '[REQ-003] C 端"我的评价"列表（含待审/驳回状态，下游按 role=C 隐式处理）'
+            operationId: Consumer_ListReviewByUserID
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListReviewByUserIDReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+components:
+    schemas:
+        CreateReviewReply:
+            type: object
+            properties:
+                reviewId:
+                    type: string
+        CreateReviewRequest:
+            type: object
+            properties:
+                userId:
+                    type: string
+                orderId:
+                    type: string
+                storeId:
+                    type: string
+                skuId:
+                    type: string
+                spuId:
+                    type: string
+                score:
+                    type: integer
+                    format: int32
+                serviceScore:
+                    type: integer
+                    format: int32
+                expressScore:
+                    type: integer
+                    format: int32
+                content:
+                    type: string
+                picUrls:
+                    type: array
+                    items:
+                        type: string
+                videoUrls:
+                    type: array
+                    items:
+                        type: string
+                anonymous:
+                    type: boolean
+                tagsJson:
+                    type: string
+                goodsSnapshotJson:
+                    type: string
+            description: |-
+                字段与 review-service.CreateReviewRequest 1:1 对齐；user_id 由 HTTP 中间件校验与 X-User-Id 一致
+                 （防止 A 用户伪造 B 的订单评价）。
+        GetReviewReply:
+            type: object
+            properties:
+                review:
+                    $ref: '#/components/schemas/ReviewDetail'
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        ListReviewByUserIDReply:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ReviewSummary'
+                page:
+                    $ref: '#/components/schemas/PaginationReply'
+        ListReviewsReply:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ReviewSummary'
+                page:
+                    $ref: '#/components/schemas/PaginationReply'
+        PaginationReply:
+            type: object
+            properties:
+                total:
+                    type: string
+                page:
+                    type: integer
+                    format: int32
+                pageSize:
+                    type: integer
+                    format: int32
+        ReplyInfo:
+            type: object
+            properties:
+                replyId:
+                    type: string
+                reviewId:
+                    type: string
+                storeId:
+                    type: string
+                content:
+                    type: string
+                picUrls:
+                    type: array
+                    items:
+                        type: string
+                videoUrls:
+                    type: array
+                    items:
+                        type: string
+                createTime:
+                    type: string
+                    format: date-time
+                updateTime:
+                    type: string
+                    format: date-time
+                version:
+                    type: integer
+                    format: int32
+        ReviewDetail:
+            type: object
+            properties:
+                summary:
+                    $ref: '#/components/schemas/ReviewSummary'
+                picUrls:
+                    type: array
+                    items:
+                        type: string
+                videoUrls:
+                    type: array
+                    items:
+                        type: string
+                tagsJson:
+                    type: string
+                goodsSnapshotJson:
+                    type: string
+                replies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ReplyInfo'
+        ReviewSummary:
+            type: object
+            properties:
+                reviewId:
+                    type: string
+                orderId:
+                    type: string
+                userId:
+                    type: string
+                storeId:
+                    type: string
+                skuId:
+                    type: string
+                spuId:
+                    type: string
+                score:
+                    type: integer
+                    format: int32
+                serviceScore:
+                    type: integer
+                    format: int32
+                expressScore:
+                    type: integer
+                    format: int32
+                content:
+                    type: string
+                anonymous:
+                    type: boolean
+                hasMedia:
+                    type: boolean
+                hasReply:
+                    type: boolean
+                isDefault:
+                    type: boolean
+                status:
+                    type: integer
+                    format: enum
+                createTime:
+                    type: string
+                    format: date-time
+                updateTime:
+                    type: string
+                    format: date-time
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+tags:
+    - name: Consumer
