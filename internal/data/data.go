@@ -1,4 +1,4 @@
-package data
+﻿package data
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	"github.com/google/wire"
 	consulapi "github.com/hashicorp/consul/api"
 
-	rv1 "review-service/api/review/v1"
+	rv1 "github.com/huicod/reviewapis/review/v1"
 )
 
 // ProviderSet 暴露 data 层的 wire providers。

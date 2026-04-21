@@ -1,9 +1,9 @@
-package data
+﻿package data
 
 import (
 	"context"
 
-	rv1 "review-service/api/review/v1"
+	rv1 "github.com/huicod/reviewapis/review/v1"
 
 	"review-c/internal/biz"
 

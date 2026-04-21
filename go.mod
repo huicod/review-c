@@ -2,9 +2,9 @@ module review-c
 
 go 1.25.9
 
-// 本地多仓共享 proto：通过 replace 指向同工作区 review-service。
-// 迁移到独立 reviewapis 仓库（submodule）时，把下面 replace 改为 `require github.com/xxx/reviewapis vX.Y.Z` 即可。
-replace review-service => ../review-service
+// 共享 proto：通过 git submodule 引入 huicod/reviewapis 到 ./third_party/reviewapis。
+// 开发期用 replace 指向 submodule；reviewapis 打 tag 后可移除 replace 改用 `go get ...@vX.Y.Z`。
+replace github.com/huicod/reviewapis => ./third_party/reviewapis
 
 require (
 	github.com/envoyproxy/protoc-gen-validate v1.1.0
@@ -12,11 +12,11 @@ require (
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/google/wire v0.6.0
 	github.com/hashicorp/consul/api v1.34.1
+	github.com/huicod/reviewapis v0.0.0-00010101000000-000000000000
 	go.uber.org/automaxprocs v1.6.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241209162323-e6fa225c2576
 	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.5
-	review-service v0.0.0-00010101000000-000000000000
 )
 
 require (

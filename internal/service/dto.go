@@ -1,4 +1,4 @@
-package service
+﻿package service
 
 // dto.go —— 【读路径】rv1 (review-service proto) → cv1 (review-c proto) 的 Reply 转换。
 //
@@ -11,7 +11,7 @@ package service
 import (
 	cv1 "review-c/api/consumer/v1"
 
-	rv1 "review-service/api/review/v1"
+	rv1 "github.com/huicod/reviewapis/review/v1"
 )
 
 // ---------------- Pagination ----------------
