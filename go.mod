@@ -2,9 +2,9 @@ module review-c
 
 go 1.25.9
 
-// 共享 proto：通过 git submodule 引入 huicod/reviewapis 到 ./third_party/reviewapis。
-// 开发期用 replace 指向 submodule；reviewapis 打 tag 后可移除 replace 改用 `go get ...@vX.Y.Z`。
-replace github.com/huicod/reviewapis => ./third_party/reviewapis
+// Shared proto contracts are maintained in the workspace-level reviewapis repo.
+// Release builds should consume a tagged github.com/huicod/reviewapis module.
+replace github.com/huicod/reviewapis => ../reviewapis
 
 require (
 	github.com/go-kratos/kratos/contrib/registry/consul/v2 v2.0.0-20260404020628-f149714c1d54
