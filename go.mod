@@ -1,6 +1,6 @@
 module review-c
 
-go 1.25.9
+go 1.25.1
 
 // Shared proto contracts are maintained in the workspace-level reviewapis repo.
 // Release builds should consume a tagged github.com/huicod/reviewapis module.
@@ -10,7 +10,7 @@ require (
 	github.com/go-kratos/kratos/contrib/registry/consul/v2 v2.0.0-20260404020628-f149714c1d54
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/google/wire v0.6.0
-	github.com/hashicorp/consul/api v1.34.1
+	github.com/hashicorp/consul/api v1.26.1
 	github.com/huicod/reviewapis v0.0.0-00010101000000-000000000000
 	go.uber.org/automaxprocs v1.6.0
 	google.golang.org/protobuf v1.36.5
@@ -26,7 +26,6 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/form/v4 v4.2.1 // indirect
-	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -40,6 +39,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel v1.34.0 // indirect
 	go.opentelemetry.io/otel/metric v1.34.0 // indirect
