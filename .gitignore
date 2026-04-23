@@ -36,3 +36,8 @@ bin/
 .vscode/
 .idea/
 *.swp
+
+# VibeCoding per-scope artifacts (transient, not source of truth)
+.vibe/artifacts/logs/
+.vibe/artifacts/plan_*.md
+.vibe/artifacts/prp_*.md
